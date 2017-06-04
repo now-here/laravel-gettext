@@ -234,7 +234,6 @@ class FileSystem
     {
         $data = array(
             $localePath,
-            "LC_MESSAGES"
         );
 
         if (!file_exists($localePath)) {
@@ -243,7 +242,6 @@ class FileSystem
 
         if ($this->configuration->getCustomLocale()) {
             $data[1] = 'C';
-
             $gettextPath = implode($data, DIRECTORY_SEPARATOR);
             if (!file_exists($gettextPath)) {
                 $this->createDirectory($gettextPath);
@@ -253,15 +251,41 @@ class FileSystem
         }
 
         $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+
         if (!file_exists($gettextPath)) {
-                $this->createDirectory($gettextPath);
+            $this->createDirectory($gettextPath);
         }
 
+        foreach (['ldf','em','nmaps','adama','common','LC_MESSAGES'] as $system){
+            $data[1] = $system;
+            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+            if (!file_exists($gettextPath)) {
+                $this->createDirectory($gettextPath);
+            }
+        }
 
         // File generation for each domain
         foreach ($this->configuration->getAllDomains() as $domain) {
-            $data[3] = $domain . ".po";
+            if(!str_contains($domain,['ldf_','em_','nmaps_','adama_'])){
 
+                if(str_contains($domain,['api','emails_common','misc','partials_rv'])){
+                    $data[1]='common';
+                    $data[2] = $domain . ".po";
+                    $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+                    $this->createPOFile($localePOPath, $locale, $domain);
+                    continue;
+                }
+
+                $data[1]='LC_MESSAGES';
+                $data[2] = $domain . ".po";
+                $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+                $this->createPOFile($localePOPath, $locale, $domain);
+                continue;
+            }
+
+            $system = head(explode('_',$domain));
+            $data[1] = $system;
+            $data[2] = $domain . ".po";
             $localePOPath = implode($data, DIRECTORY_SEPARATOR);
 
             if (!$this->createPOFile($localePOPath, $locale, $domain)) {
@@ -288,7 +312,6 @@ class FileSystem
     {
         $data = [
             $localePath,
-            "LC_MESSAGES",
             $domain . ".po",
         ];
 
@@ -297,30 +320,38 @@ class FileSystem
             array_splice($data, 1, 0, $customLocale);
         }
 
-        $localePOPath = implode($data, DIRECTORY_SEPARATOR);
 
-        if (!file_exists($localePOPath) || !$localeContents = file_get_contents($localePOPath)) {
-            throw new LocaleFileNotFoundException(
-                sprintf('Can\'t read %s verify your locale structure', $localePOPath)
+        foreach (['adama','common','em','ldf','nmaps','common'] as $system){
+            if($domain == 'messages' or $domain == $system)return true;
+            $data[1] = $system;
+            $data[2]=$domain.".po";
+            $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+
+            if(!file_exists($localePOPath)) continue;
+
+            if (!$localeContents = file_get_contents($localePOPath)) {
+                throw new LocaleFileNotFoundException(
+                    sprintf('Can\'t read %s verify your locale structure', $localePOPath)
+                );
+            }
+
+            $newHeader = $this->createPOFile(
+                $localePOPath,
+                $locale,
+                $domain,
+                false
             );
+
+            // Header replacement
+            $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
+
+            if (!file_put_contents($localePOPath, $localeContents)) {
+                throw new LocaleFileNotFoundException(
+                    sprintf('Can\'t write on %s', $localePOPath)
+                );
+            }
+
         }
-
-        $newHeader = $this->createPOFile(
-            $localePOPath,
-            $locale,
-            $domain,
-            false
-        );
-
-        // Header replacement
-        $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
-
-        if (!file_put_contents($localePOPath, $localeContents)) {
-            throw new LocaleFileNotFoundException(
-                sprintf('Can\'t write on %s', $localePOPath)
-            );
-        }
-
         return true;
     }
 
@@ -447,7 +478,6 @@ class FileSystem
         // Locale directories
         foreach ($this->configuration->getSupportedLocales() as $locale) {
             $localePath = $this->getDomainPath($locale);
-
             if (!file_exists($localePath)) {
                 // Locale directory is created
                 $this->addLocale($localePath, $locale);
