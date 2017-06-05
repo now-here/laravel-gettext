@@ -310,8 +310,9 @@ class FileSystem
             array_splice($data, 1, 0, $customLocale);
         }
 
-
-        foreach (['adama','common','em','ldf','nmaps','common'] as $system){
+        $system_folders = $this->configuration->getSupportedSystems();
+        $system_folders[]='common';
+        foreach ($system_folders as $system){
             if($domain == 'messages' or $domain == $system)return true;
             $data[1] = $system;
             $data[2]=$domain.".po";
@@ -331,7 +332,7 @@ class FileSystem
                 $domain,
                 false
             );
-            dump($newHeader);
+
             // Header replacement
             $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
 
