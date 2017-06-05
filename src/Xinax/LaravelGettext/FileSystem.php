@@ -153,7 +153,7 @@ class FileSystem
     public function createPOFile($path, $locale, $domain, $write = true)
     {
         $project = $this->configuration->getProject();
-        $timestamp = date("Y-m-d H:iO");
+        $timestamp = "2017-05-24 11:21+0000";
         $translator = $this->configuration->getTranslator();
         $encoding = $this->configuration->getEncoding();
 
@@ -310,6 +310,7 @@ class FileSystem
             array_splice($data, 1, 0, $customLocale);
         }
 
+
         $system_folders = $this->configuration->getSupportedSystems();
         $system_folders[]='common';
         foreach ($system_folders as $system){
@@ -332,7 +333,6 @@ class FileSystem
                 $domain,
                 false
             );
-
             // Header replacement
             $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
 
