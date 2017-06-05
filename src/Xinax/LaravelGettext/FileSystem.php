@@ -255,8 +255,8 @@ class FileSystem
         if (!file_exists($gettextPath)) {
             $this->createDirectory($gettextPath);
         }
-
-        foreach (['ldf','em','nmaps','adama','common','LC_MESSAGES'] as $system){
+        $system_folders = array_merge($this->configuration->getSupportedSystems(),['common','LC_MESSAGES']);
+        foreach ($system_folders as $system){
             $data[1] = $system;
             $gettextPath = implode($data, DIRECTORY_SEPARATOR);
             if (!file_exists($gettextPath)) {
@@ -266,25 +266,15 @@ class FileSystem
 
         // File generation for each domain
         foreach ($this->configuration->getAllDomains() as $domain) {
-            if(!str_contains($domain,['ldf_','em_','nmaps_','adama_'])){
 
-                if(str_contains($domain,['api','emails_common','misc','partials_rv'])){
-                    $data[1]='common';
-                    $data[2] = $domain . ".po";
-                    $localePOPath = implode($data, DIRECTORY_SEPARATOR);
-                    $this->createPOFile($localePOPath, $locale, $domain);
-                    continue;
-                }
-
+            if(str_contains($domain,'_common')){
+                $data[1]='common';
+            }elseif (str_contains($domain,'_') and str_contains($domain,$this->configuration->getSupportedSystems())){
+                $data[1] = head(explode('_',$domain));
+            }else{
                 $data[1]='LC_MESSAGES';
-                $data[2] = $domain . ".po";
-                $localePOPath = implode($data, DIRECTORY_SEPARATOR);
-                $this->createPOFile($localePOPath, $locale, $domain);
-                continue;
             }
 
-            $system = head(explode('_',$domain));
-            $data[1] = $system;
             $data[2] = $domain . ".po";
             $localePOPath = implode($data, DIRECTORY_SEPARATOR);
 
@@ -341,7 +331,7 @@ class FileSystem
                 $domain,
                 false
             );
-
+            dump($newHeader);
             // Header replacement
             $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
 

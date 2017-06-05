@@ -103,7 +103,10 @@ class ConfigManager
             ->setTranslator($config['translator'])
             ->setSourcePaths($config['source-paths'])
             ->setSyncLaravel($config['sync-laravel'])
-            ->setAdapter($adapter);
+            ->setAdapter($adapter)
+            ->setLangData($config['code_language'])
+            ->setSupportedSystems($config['supported-systems'])
+            ->setCommonFiles($config['common-files']);
 
         if (array_key_exists('relative-path', $config)) {
             $container->setRelativePath($config['relative-path']);

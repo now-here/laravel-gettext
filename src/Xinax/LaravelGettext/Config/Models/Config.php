@@ -122,6 +122,12 @@ class Config
      */
     protected $handler;
 
+    protected $langData;
+
+    protected $systems;
+
+    protected $commonFiles;
+
     public function __construct()
     {
         $this->encoding = 'UTF-8';
@@ -515,5 +521,32 @@ class Config
     public function getHandler()
     {
         return !empty($this->handler) ? $this->handler : 'symfony';
+    }
+
+    public function setLangData($langData){
+        $this->langData = $langData;
+        return $this;
+    }
+
+    public function getLangData(){
+        return $this->langData;
+    }
+
+    public function setSupportedSystems($systems){
+        $this->systems = $systems;
+        return $this;
+    }
+
+    public function getSupportedSystems(){
+        return $this->systems;
+    }
+
+    public function setCommonFiles($commonFiles){
+        $this->commonFiles = $commonFiles;
+        return $this;
+    }
+
+    public function getCommonFiles(){
+        return $this->commonFiles;
     }
 }
