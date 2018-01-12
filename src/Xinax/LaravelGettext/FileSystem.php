@@ -98,15 +98,12 @@ class FileSystem
             }
 
             $fs = new \Illuminate\Filesystem\Filesystem($path);
-            $files = $fs->allFiles($realPath);
-
             $compiler = new \Illuminate\View\Compilers\BladeCompiler($fs, $domainDir);
 
-            foreach ($files as $file) {
-                $filePath = $file->getRealPath();
-                $compiler->setPath($filePath);
+            if($fs->isFile($path)){
+                $compiler->setPath(realPath($path));
 
-                $contents = $compiler->compileString($fs->get($filePath));
+                $contents = $compiler->compileString($fs->get(realPath($path)));
 
                 $compiledPath = $compiler->getCompiledPath($compiler->getPath());
 
@@ -114,7 +111,23 @@ class FileSystem
                     $compiledPath . '.php',
                     $contents
                 );
+            }else{
+                $files = $fs->allFiles($realPath);
+                foreach ($files as $file) {
+                    $filePath = $file->getRealPath();
+                    $compiler->setPath($filePath);
+
+                    $contents = $compiler->compileString($fs->get($filePath));
+
+                    $compiledPath = $compiler->getCompiledPath($compiler->getPath());
+
+                    $fs->put(
+                        $compiledPath . '.php',
+                        $contents
+                    );
+                }
             }
+
         }
 
         return true;
