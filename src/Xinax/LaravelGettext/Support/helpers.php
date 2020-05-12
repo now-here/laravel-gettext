@@ -19,7 +19,7 @@ if (!function_exists('_i')) {
         $translation = $translator->translate($message);
 
         if (strlen($translation)) {
-            if (!empty($args)) {
+            if (isset($args)) {
                 if (!is_array($args)) {
                     $args = array_slice(func_get_args(), 1);
                 }
@@ -87,7 +87,7 @@ if (!function_exists('_n')) {
         $translator = app(LaravelGettext::class);
         $message    = $translator->translatePlural($singular, $plural, $count);
 
-        if (!empty($args) && !is_array($args)) {
+        if (isset($args) && !is_array($args)) {
             $args = array_slice(func_get_args(), 3);
         }
         $message = vsprintf($message, $args);
@@ -115,7 +115,7 @@ if (!function_exists('_s')) {
         $translator = app(LaravelGettext::class);
         $message    = $translator->getTranslator()->translatePluralInline($message, $count);
 
-        if (!empty($args) && !is_array($args)) {
+        if (isset($args) && !is_array($args)) {
             $args = array_slice(func_get_args(), 3);
         }
         $message = vsprintf($message, $args);

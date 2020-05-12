@@ -138,11 +138,11 @@ class Config
 
     public function __construct()
     {
-        $this->encoding         = 'UTF-8';
+        $this->encoding = 'UTF-8';
         $this->supportedLocales = [];
-        $this->sourcePaths      = [];
-        $this->customLocale     = false;
-        $this->relativePath     = "../../../../../app";
+        $this->sourcePaths = [];
+        $this->customLocale = false;
+        $this->relativePath = "../../../../../app";
     }
 
     public function getRelativePath()
@@ -452,7 +452,6 @@ class Config
 
         return $this;
     }
-
 
 
     /**

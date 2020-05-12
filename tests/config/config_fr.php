@@ -1,9 +1,17 @@
 <?php
 
-// Used for testing
-// return array(
 
-return array(
+return [
+
+    /**
+     * Translation handlers, options are:
+     *
+     * - symfony: (recommended) uses the symfony translations component. Incompatible with php-gettext
+     * you must uninstall the php-gettext module before use this handler.
+     *
+     * - gettext: requires the php-gettext module installed. This handler has well-known cache issues
+     */
+    'handler' => 'symfony',
 
     /**
      * Session identifier: Key under which the current locale will be stored.
@@ -19,11 +27,10 @@ return array(
     /**
      * Supported locales: An array containing all allowed languages
      */
-    'supported-locales' => array(
+    'supported-locales' => [
         'en_US',
-        'es_AR',
-        'de_DE'
-    ),
+        'fr_FR'
+    ],
 
     /**
      * Default charset encoding.
@@ -45,20 +52,19 @@ return array(
     ],
 
     /**
-     * Base translation directory path relative to base-path
-     * (don't use trailing slash)
+     * Base translation directory path (don't use trailing slash)
      */
-    'translations-path' => 'lang',
+    'translations-path' => 'resources/lang',
 
     /**
      * Relative path to the app folder: is used on .po header files
      */
-    'relative-path' => '../../../../../app',
+    'relative-path' => '../../../../..',
 
     /**
      * Fallback locale: When default locale is not available
      */
-    'fallback-locale' => 'es_AR',
+    'fallback-locale' => 'en_US',
 
     /**
      * Default domain used for translations: It is the file name for .po and .mo files
@@ -77,44 +83,39 @@ return array(
 
     /**
      * Paths where Poedit will search recursively for strings to translate.
-     * All paths are relative to "base-path option" (don't use trailing slash).
+     * All paths are relative to app/ (don't use trailing slash).
      *
-     * If you have already .po files with translations and the need to add
-     * another directory remember to call artisan gettext:update after do this.
+     * Remember to call artisan gettext:update after change this.
      */
-    /*'source-paths' => array(
-		'controllers',
-		'views',
-		'storage/views',
-	),*/
+    'source-paths' => [
+        'views',
+        'controllers',
+        'storage/framework/messages'
+    ],
 
     /**
-     * Multidomain directory paths. If you want separate your translations in
-     * different files, just must wrap your paths into a domain name.
-     * Paths on top-level will be associated to the default domain file,
+     * Multi-domain directory paths. If you want the translations in
+     * different files, just wrap your paths into a domain name.
      * for example:
      */
-    'source-paths' => array(
+    /*
+    'source-paths' => [
 
-        // frontend domain
-        'frontend' => array(
-            'controllers',
-            'views/frontend'
-        ),
+        // 'frontend' domain
+        'frontend' => [
+			'controllers',
+			'views/frontend',
+		],
 
-        // backend domain
-        'backend' => array(
-            'views/backend'
-        ),
+        // 'backend' domain
+		'backend' => [
+			'views/backend',
+		],
 
-        // messages domain
-        'messages' => [
-            'views/messages'
-        ],
-
-        // default domain (messages)
-        'views/misc',
-    ),
+        // 'messages' domain (matches default domain)
+		'storage/views',
+	],
+    */
 
     /**
      * Sync laravel: A flag that determines if the laravel built-in locale must
@@ -123,15 +124,9 @@ return array(
     'sync-laravel' => true,
 
     /**
-     * Use custom locale that is not supported by the system
-     */
-    'custom-locale' => false,
-
-
-    /**
      * The adapter used to sync the laravel built-in locale
      */
-    'adapter' => \Xinax\LaravelGettext\Testing\Adapter\TestAdapter::class,
+    'adapter' => \Xinax\LaravelGettext\Adapters\LaravelAdapter::class,
 
     /**
      * Where to store the current locale/domain
@@ -142,4 +137,20 @@ return array(
      * @see \Xinax\LaravelGettext\Storages\Storage
      */
     'storage' => \Xinax\LaravelGettext\Storages\SessionStorage::class,
-);
+
+    /**
+     * Use custom locale that is not supported by the system
+     */
+    'custom-locale' => false,
+
+    /**
+     * The keywords list used by poedit to search the strings to be translated
+     *
+     * The "_", "__" and "gettext" are singular translation functions
+     * The "_n" and "ngettext" are plural translation functions
+     * The "dgettext" function allows a translation domain to be explicitly specified
+     *
+     * "__" and "_n" and "_i" and "_s" are helpers functions @see \Xinax\LaravelGettext\Support\helpers.php
+     */
+    'keywords-list' => ['_', '__', '_i', '_s', 'gettext', '_n:1,2', 'ngettext:1,2', 'dgettext:2'],
+];
