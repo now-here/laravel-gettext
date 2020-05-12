@@ -100,7 +100,7 @@ class FileSystem
             $fs = new \Illuminate\Filesystem\Filesystem($path);
             $compiler = new \Illuminate\View\Compilers\BladeCompiler($fs, $domainDir);
 
-            if($fs->isFile($path)){
+            if ($fs->isFile($path)) {
                 $compiler->setPath(realPath($path));
 
                 $contents = $compiler->compileString($fs->get(realPath($path)));
@@ -111,7 +111,7 @@ class FileSystem
                     $compiledPath . '.php',
                     $contents
                 );
-            }else{
+            } else {
                 $files = $fs->allFiles($realPath);
                 foreach ($files as $file) {
                     $filePath = $file->getRealPath();
@@ -128,178 +128,181 @@ class FileSystem
                 }
             }
 
-        return true;
-    }
-
-    /**
-     * Constructs and returns the full path to the translation files
-     *
-     * @param  null $append
-     * @return string
-     */
-    public function getDomainPath($append = null)
-    {
-        $path = [
-            $this->basePath,
-            $this->configuration->getTranslationsPath(),
-            $this->folderName,
-        ];
-
-        if (!is_null($append)) {
-            array_push($path, $append);
-        }
-
-        return implode(DIRECTORY_SEPARATOR, $path);
-    }
-
-    /**
-     * Creates a configured .po file on $path
-     * If PHP are not able to create the file the content will be returned instead
-     *
-     * @param  string    $path
-     * @param  string    $locale
-     * @param  string    $domain
-     * @param  bool|true $write
-     * @return int|string
-     */
-    public function createPOFile($path, $locale, $domain, $write = true)
-    {
-        $project = $this->configuration->getProject();
-        $timestamp = "2017-05-24 11:21+0000";
-        $translator = $this->configuration->getTranslator();
-        $encoding = $this->configuration->getEncoding();
-
-        $relativePath = $this->configuration->getRelativePath();
-
-        $keywords = implode(';', $this->configuration->getKeywordsList());
-
-        $template = 'msgid ""' . "\n";
-        $template .= 'msgstr ""' . "\n";
-        $template .= '"Project-Id-Version: ' . $project . '\n' . "\"\n";
-        $template .= '"POT-Creation-Date: ' . $timestamp . '\n' . "\"\n";
-        $template .= '"PO-Revision-Date: ' . $timestamp . '\n' . "\"\n";
-        $template .= '"Last-Translator: ' . $translator . '\n' . "\"\n";
-        $template .= '"Language-Team: ' . $translator . '\n' . "\"\n";
-        $template .= '"Language: ' . $locale . '\n' . "\"\n";
-        $template .= '"MIME-Version: 1.0' . '\n' . "\"\n";
-        $template .= '"Content-Type: text/plain; charset=' . $encoding . '\n' . "\"\n";
-        $template .= '"Content-Transfer-Encoding: 8bit' . '\n' . "\"\n";
-        $template .= '"X-Generator: Poedit 1.5.4' . '\n' . "\"\n";
-        $template .= '"X-Poedit-KeywordsList: ' . $keywords . '\n' . "\"\n";
-        $template .= '"X-Poedit-Basepath: ' . $relativePath . '\n' . "\"\n";
-        $template .= '"X-Poedit-SourceCharset: ' . $encoding . '\n' . "\"\n";
-
-        // Source paths
-        $sourcePaths = $this->configuration->getSourcesFromDomain($domain);
-
-        // Compiled views on paths
-        if (count($sourcePaths)) {
-
-            // View compilation
-            $this->compileViews($sourcePaths, $domain);
-            array_push($sourcePaths, $this->getStorageForDomain($domain));
-
-            $i = 0;
-
-            foreach ($sourcePaths as $sourcePath) {
-                $template .= '"X-Poedit-SearchPath-' . $i . ': ' . $sourcePath . '\n' . "\"\n";
-                $i++;
-            }
-
-        }
-
-        if (!$write) {
-            return $template . "\n";
-        }
-
-        // File creation
-        $file = fopen($path, "w");
-        $result = fwrite($file, $template);
-        fclose($file);
-
-        return $result;
-    }
-
-    /**
-     * Validate if the directory can be created
-     *
-     * @param  $path
-     * @throws FileCreationException
-     */
-    protected function createDirectory($path)
-    {
-        if (!file_exists($path) && !mkdir($path)) {
-            throw new FileCreationException(
-                sprintf('Can\'t create the directory: %s', $path)
-            );
+            return true;
         }
     }
 
-    /**
-     * Adds a new locale directory + .po file
-     *
-     * @param  String $localePath
-     * @param  String $locale
-     * @throws FileCreationException
-     */
-    public function addLocale($localePath, $locale)
-    {
-        $data = array(
-            $localePath,
-        );
+        /**
+         * Constructs and returns the full path to the translation files
+         *
+         * @param null $append
+         * @return string
+         */
+        public
+        function getDomainPath($append = null)
+        {
+            $path = [
+                $this->basePath,
+                $this->configuration->getTranslationsPath(),
+                $this->folderName,
+            ];
 
-        if (!file_exists($localePath)) {
-            $this->createDirectory($localePath);
-        }
-
-        if ($this->configuration->getCustomLocale()) {
-            $data[1] = 'C';
-            $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
-            if (!file_exists($gettextPath)) {
-                $this->createDirectory($gettextPath);
+            if (!is_null($append)) {
+                array_push($path, $append);
             }
 
-            $data[2] = 'LC_MESSAGES';
+            return implode(DIRECTORY_SEPARATOR, $path);
         }
 
-        $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+        /**
+         * Creates a configured .po file on $path
+         * If PHP are not able to create the file the content will be returned instead
+         *
+         * @param string $path
+         * @param string $locale
+         * @param string $domain
+         * @param bool|true $write
+         * @return int|string
+         */
+        public
+        function createPOFile($path, $locale, $domain, $write = true)
+        {
+            $project = $this->configuration->getProject();
+            $timestamp = "2017-05-24 11:21+0000";
+            $translator = $this->configuration->getTranslator();
+            $encoding = $this->configuration->getEncoding();
 
-        if (!file_exists($gettextPath)) {
-            $this->createDirectory($gettextPath);
-        }
-        $system_folders = array_merge($this->configuration->getSupportedSystems(),['common','LC_MESSAGES']);
-        foreach ($system_folders as $system){
-            $data[1] = $system;
-            $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
-            if (!file_exists($gettextPath)) {
-                $this->createDirectory($gettextPath);
+            $relativePath = $this->configuration->getRelativePath();
+
+            $keywords = implode(';', $this->configuration->getKeywordsList());
+
+            $template = 'msgid ""' . "\n";
+            $template .= 'msgstr ""' . "\n";
+            $template .= '"Project-Id-Version: ' . $project . '\n' . "\"\n";
+            $template .= '"POT-Creation-Date: ' . $timestamp . '\n' . "\"\n";
+            $template .= '"PO-Revision-Date: ' . $timestamp . '\n' . "\"\n";
+            $template .= '"Last-Translator: ' . $translator . '\n' . "\"\n";
+            $template .= '"Language-Team: ' . $translator . '\n' . "\"\n";
+            $template .= '"Language: ' . $locale . '\n' . "\"\n";
+            $template .= '"MIME-Version: 1.0' . '\n' . "\"\n";
+            $template .= '"Content-Type: text/plain; charset=' . $encoding . '\n' . "\"\n";
+            $template .= '"Content-Transfer-Encoding: 8bit' . '\n' . "\"\n";
+            $template .= '"X-Generator: Poedit 1.5.4' . '\n' . "\"\n";
+            $template .= '"X-Poedit-KeywordsList: ' . $keywords . '\n' . "\"\n";
+            $template .= '"X-Poedit-Basepath: ' . $relativePath . '\n' . "\"\n";
+            $template .= '"X-Poedit-SourceCharset: ' . $encoding . '\n' . "\"\n";
+
+            // Source paths
+            $sourcePaths = $this->configuration->getSourcesFromDomain($domain);
+
+            // Compiled views on paths
+            if (count($sourcePaths)) {
+
+                // View compilation
+                $this->compileViews($sourcePaths, $domain);
+                array_push($sourcePaths, $this->getStorageForDomain($domain));
+
+                $i = 0;
+
+                foreach ($sourcePaths as $sourcePath) {
+                    $template .= '"X-Poedit-SearchPath-' . $i . ': ' . $sourcePath . '\n' . "\"\n";
+                    $i++;
+                }
+
             }
-        }
 
-        // File generation for each domain
-        foreach ($this->configuration->getAllDomains() as $domain) {
-
-            if(str_contains($domain,'_common')){
-                $data[1]='common';
-            }elseif (str_contains($domain,'_') and str_contains($domain,$this->configuration->getSupportedSystems())){
-                $data[1] = head(explode('_',$domain));
-            }else{
-                $data[1]='LC_MESSAGES';
+            if (!$write) {
+                return $template . "\n";
             }
 
-            $data[2] = $domain . ".po";
-            $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
+            // File creation
+            $file = fopen($path, "w");
+            $result = fwrite($file, $template);
+            fclose($file);
 
-            if (!$this->createPOFile($localePOPath, $locale, $domain)) {
+            return $result;
+        }
+
+        /**
+         * Validate if the directory can be created
+         *
+         * @param  $path
+         * @throws FileCreationException
+         */
+        protected
+        function createDirectory($path)
+        {
+            if (!file_exists($path) && !mkdir($path)) {
                 throw new FileCreationException(
-                    sprintf('Can\'t create the file: %s', $localePOPath)
+                    sprintf('Can\'t create the directory: %s', $path)
                 );
             }
-
         }
 
-    }
+        /**
+         * Adds a new locale directory + .po file
+         *
+         * @param String $localePath
+         * @param String $locale
+         * @throws FileCreationException
+         */
+        public function addLocale($localePath, $locale)
+        {
+            $data = array(
+                $localePath,
+            );
 
+            if (!file_exists($localePath)) {
+                $this->createDirectory($localePath);
+            }
+
+            if ($this->configuration->getCustomLocale()) {
+                $data[1] = 'C';
+                $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
+                if (!file_exists($gettextPath)) {
+                    $this->createDirectory($gettextPath);
+                }
+
+                $data[2] = 'LC_MESSAGES';
+            }
+
+            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+
+            if (!file_exists($gettextPath)) {
+                $this->createDirectory($gettextPath);
+            }
+            $system_folders = array_merge($this->configuration->getSupportedSystems(), ['common', 'LC_MESSAGES']);
+            foreach ($system_folders as $system) {
+                $data[1] = $system;
+                $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
+                if (!file_exists($gettextPath)) {
+                    $this->createDirectory($gettextPath);
+                }
+            }
+
+            // File generation for each domain
+            foreach ($this->configuration->getAllDomains() as $domain) {
+
+                if (str_contains($domain, '_common')) {
+                    $data[1] = 'common';
+                } elseif (str_contains($domain, '_') and str_contains($domain, $this->configuration->getSupportedSystems())) {
+                    $data[1] = head(explode('_', $domain));
+                } else {
+                    $data[1] = 'LC_MESSAGES';
+                }
+
+                $data[2] = $domain . ".po";
+                $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
+
+                if (!$this->createPOFile($localePOPath, $locale, $domain)) {
+                    throw new FileCreationException(
+                        sprintf('Can\'t create the file: %s', $localePOPath)
+                    );
+                }
+
+            }
+
+        }
     /**
      * Update the .po file headers by domain
      * (mainly source-file paths)
