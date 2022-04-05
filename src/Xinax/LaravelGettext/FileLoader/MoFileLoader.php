@@ -40,7 +40,7 @@ class MoFileLoader extends FileLoader
      *
      * {@inheritdoc}
      */
-    protected function loadResource($resource)
+    protected function loadResource(string $resource): array
     {
         $stream = fopen($resource, 'r');
 

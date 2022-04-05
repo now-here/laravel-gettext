@@ -37,7 +37,7 @@ class ApcuFileCacheLoader extends FileLoader
      *
      * @throws InvalidResourceException if stream content has an invalid format
      */
-    protected function loadResource($resource)
+    protected function loadResource(string $resource): array
     {
         if (!extension_loaded('apcu')) {
             return $this->underlyingFileLoader->loadResource($resource);
