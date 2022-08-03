@@ -71,8 +71,8 @@ class FileSystem
     /**
      * Build views in order to parse php files
      *
-     * @param array $viewPaths
-     * @param string $domain
+     * @param  array  $viewPaths
+     * @param  string $domain
      * @return bool
      * @throws FileCreationException
      */
@@ -122,7 +122,8 @@ class FileSystem
 
     /**
      * Constructs and returns the full path to the translation files
-     * @param null $append
+     *
+     * @param  null $append
      * @return string
      */
     public function getDomainPath($append = null)
@@ -144,10 +145,10 @@ class FileSystem
      * Creates a configured .po file on $path
      * If PHP are not able to create the file the content will be returned instead
      *
-     * @param string $path
-     * @param string $locale
-     * @param string $domain
-     * @param bool|true $write
+     * @param  string    $path
+     * @param  string    $locale
+     * @param  string    $domain
+     * @param  bool|true $write
      * @return int|string
      */
     public function createPOFile($path, $locale, $domain, $write = true)
@@ -211,7 +212,7 @@ class FileSystem
     /**
      * Validate if the directory can be created
      *
-     * @param $path
+     * @param  $path
      * @throws FileCreationException
      */
     protected function createDirectory($path)
@@ -226,14 +227,15 @@ class FileSystem
     /**
      * Adds a new locale directory + .po file
      *
-     * @param  String                $localePath
-     * @param  String                $locale
+     * @param  String $localePath
+     * @param  String $locale
      * @throws FileCreationException
      */
     public function addLocale($localePath, $locale)
     {
         $data = array(
             $localePath,
+            "LC_MESSAGES"
         );
 
         if (!file_exists($localePath)) {
@@ -242,7 +244,8 @@ class FileSystem
 
         if ($this->configuration->getCustomLocale()) {
             $data[1] = 'C';
-            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+
+            $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
             if (!file_exists($gettextPath)) {
                 $this->createDirectory($gettextPath);
             }
@@ -250,43 +253,17 @@ class FileSystem
             $data[2] = 'LC_MESSAGES';
         }
 
-        $gettextPath = implode($data, DIRECTORY_SEPARATOR);
-
+        $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
         if (!file_exists($gettextPath)) {
-            $this->createDirectory($gettextPath);
+                $this->createDirectory($gettextPath);
         }
 
-        foreach (['ldf','em','nmaps','adama','common','LC_MESSAGES'] as $system){
-            $data[1] = $system;
-            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
-            if (!file_exists($gettextPath)) {
-                $this->createDirectory($gettextPath);
-            }
-        }
 
         // File generation for each domain
         foreach ($this->configuration->getAllDomains() as $domain) {
-            if(!str_contains($domain,['ldf_','em_','nmaps_','adama_'])){
+            $data[3] = $domain . ".po";
 
-                if(str_contains($domain,['api','emails_common','misc','partials_rv'])){
-                    $data[1]='common';
-                    $data[2] = $domain . ".po";
-                    $localePOPath = implode($data, DIRECTORY_SEPARATOR);
-                    $this->createPOFile($localePOPath, $locale, $domain);
-                    continue;
-                }
-
-                $data[1]='LC_MESSAGES';
-                $data[2] = $domain . ".po";
-                $localePOPath = implode($data, DIRECTORY_SEPARATOR);
-                $this->createPOFile($localePOPath, $locale, $domain);
-                continue;
-            }
-
-            $system = head(explode('_',$domain));
-            $data[1] = $system;
-            $data[2] = $domain . ".po";
-            $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+            $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
 
             if (!$this->createPOFile($localePOPath, $locale, $domain)) {
                 throw new FileCreationException(
@@ -302,9 +279,9 @@ class FileSystem
      * Update the .po file headers by domain
      * (mainly source-file paths)
      *
-     * @param $localePath
-     * @param $locale
-     * @param $domain
+     * @param  $localePath
+     * @param  $locale
+     * @param  $domain
      * @return bool
      * @throws LocaleFileNotFoundException
      */
@@ -312,6 +289,7 @@ class FileSystem
     {
         $data = [
             $localePath,
+            "LC_MESSAGES",
             $domain . ".po",
         ];
 
@@ -320,46 +298,38 @@ class FileSystem
             array_splice($data, 1, 0, $customLocale);
         }
 
+        $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
 
-        foreach (['adama','common','em','ldf','nmaps','common'] as $system){
-            if($domain == 'messages' or $domain == $system)return true;
-            $data[1] = $system;
-            $data[2]=$domain.".po";
-            $localePOPath = implode($data, DIRECTORY_SEPARATOR);
-
-            if(!file_exists($localePOPath)) continue;
-
-            if (!$localeContents = file_get_contents($localePOPath)) {
-                throw new LocaleFileNotFoundException(
-                    sprintf('Can\'t read %s verify your locale structure', $localePOPath)
-                );
-            }
-
-            $newHeader = $this->createPOFile(
-                $localePOPath,
-                $locale,
-                $domain,
-                false
+        if (!file_exists($localePOPath) || !$localeContents = file_get_contents($localePOPath)) {
+            throw new LocaleFileNotFoundException(
+                sprintf('Can\'t read %s verify your locale structure', $localePOPath)
             );
-
-            // Header replacement
-            $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
-
-            if (!file_put_contents($localePOPath, $localeContents)) {
-                throw new LocaleFileNotFoundException(
-                    sprintf('Can\'t write on %s', $localePOPath)
-                );
-            }
-
         }
+
+        $newHeader = $this->createPOFile(
+            $localePOPath,
+            $locale,
+            $domain,
+            false
+        );
+
+        // Header replacement
+        $localeContents = preg_replace('/^([^#])+:?/', $newHeader, $localeContents);
+
+        if (!file_put_contents($localePOPath, $localeContents)) {
+            throw new LocaleFileNotFoundException(
+                sprintf('Can\'t write on %s', $localePOPath)
+            );
+        }
+
         return true;
     }
 
     /**
      * Return the relative path from a file or directory to anothe
      *
-     * @param string $from
-     * @param string $to
+     * @param  string $from
+     * @param  string $to
      * @return string
      * @author Laurent Goussard
      */
@@ -407,7 +377,7 @@ class FileSystem
      * Checks the required directory
      * Optionally checks each local directory, if $checkLocales is true
      *
-     * @param bool|false $checkLocales
+     * @param  bool|false $checkLocales
      * @return bool
      * @throws DirectoryNotFoundException
      */
@@ -478,6 +448,7 @@ class FileSystem
         // Locale directories
         foreach ($this->configuration->getSupportedLocales() as $locale) {
             $localePath = $this->getDomainPath($locale);
+
             if (!file_exists($localePath)) {
                 // Locale directory is created
                 $this->addLocale($localePath, $locale);
@@ -504,7 +475,7 @@ class FileSystem
     /**
      * Set the package configuration model
      *
-     * @param Config $configuration
+     * @param  Config $configuration
      * @return $this
      */
     public function setConfiguration(Config $configuration)
@@ -526,7 +497,7 @@ class FileSystem
     /**
      * Set the filesystem base path
      *
-     * @param $basePath
+     * @param  $basePath
      * @return $this
      */
     public function setBasePath($basePath)
@@ -548,7 +519,7 @@ class FileSystem
     /**
      * Set the storage path
      *
-     * @param $storagePath
+     * @param  $storagePath
      * @return $this
      */
     public function setStoragePath($storagePath)
@@ -560,7 +531,7 @@ class FileSystem
     /**
      * Get the full path for domain storage directory
      *
-     * @param $domain
+     * @param  $domain
      * @return String
      */
     public function getStorageForDomain($domain)
@@ -577,7 +548,7 @@ class FileSystem
     /**
      * Removes the directory contents recursively
      *
-     * @param string $path
+     * @param  string $path
      * @return null|boolean
      */
     public static function clearDirectory($path)
@@ -625,21 +596,26 @@ class FileSystem
     }
 
     /**
-     * Returns the full path for a .po file from its domain and locale
+     * Returns the full path for a .po/.mo file from its domain and locale
      *
      * @param $locale
      * @param $domain
      *
+     * @param string $type
+     *
      * @return string
      */
-    public function makePOFilePath($locale, $domain)
+    public function makeFilePath($locale, $domain, $type = 'po')
     {
-        $filePath = implode(DIRECTORY_SEPARATOR, [
+        $filePath = implode(
+            DIRECTORY_SEPARATOR, [
             $locale,
             'LC_MESSAGES',
-            $domain . ".po"
-        ]);
+            $domain . "." . $type
+            ]
+        );
 
         return $this->getDomainPath($filePath);
     }
+
 }

@@ -54,7 +54,7 @@ class MultipleDomainTest extends BaseTestCase
         $this->clearFiles();
     }
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -182,7 +182,7 @@ class MultipleDomainTest extends BaseTestCase
     /**
      * Mocker tear-down
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         m::close();
     }

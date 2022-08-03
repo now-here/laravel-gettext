@@ -6,3 +6,6 @@ tests/storage/*
 doc/laravel5.txt
 composer.lock
 composer.phar
+.idea
+.phpunit.result.cache
+/build

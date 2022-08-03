@@ -2,6 +2,9 @@
 
 use \Mockery as m;
 
+use Xinax\LaravelGettext\Adapters\AdapterInterface;
+use Xinax\LaravelGettext\Storages\MemoryStorage;
+use Xinax\LaravelGettext\Testing\Adapter\TestAdapter;
 use Xinax\LaravelGettext\Testing\BaseTestCase;
 use Xinax\LaravelGettext\Config\ConfigManager;
 use Xinax\LaravelGettext\Adapters\LaravelAdapter;
@@ -22,22 +25,31 @@ class LaravelGettextTest extends BaseTestCase
      */
     protected $translator;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $testConfig = include __DIR__ . '/../config/config.php';
 
         $config = ConfigManager::create($testConfig);
-        $adapter = new LaravelAdapter;
+        $adapter = app($config->get()->getAdapter());
         $fileSystem = new FileSystem($config->get(), app_path(), storage_path());
 
         $translator = new Symfony(
             $config->get(),
             $adapter,
-            $fileSystem
+            $fileSystem,
+            new MemoryStorage($config->get())
         );
 
         $this->translator = $translator;
+    }
+
+    public function testAdapter() {
+        $testConfig = include __DIR__ . '/../config/config.php';
+        $config = ConfigManager::create($testConfig);
+        $adapter = app($config->get()->getAdapter());
+        $this->assertInstanceOf(AdapterInterface::class, $adapter);
+        $this->assertInstanceOf(TestAdapter::class, $adapter);
     }
 
     /**
@@ -90,7 +102,7 @@ class LaravelGettextTest extends BaseTestCase
         $this->assertInstanceOf('Xinax\LaravelGettext\Translators\Symfony', $response);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         m::close();
     }

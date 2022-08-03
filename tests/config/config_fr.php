@@ -29,6 +29,7 @@ return [
      */
     'supported-locales' => [
         'en_US',
+        'fr_FR'
     ],
 
     /**
@@ -53,12 +54,12 @@ return [
     /**
      * Base translation directory path (don't use trailing slash)
      */
-    'translations-path' => '../resources/lang',
+    'translations-path' => 'resources/lang',
 
     /**
      * Relative path to the app folder: is used on .po header files
      */
-    'relative-path' => '../../../../../app',
+    'relative-path' => '../../../../..',
 
     /**
      * Fallback locale: When default locale is not available
@@ -87,9 +88,9 @@ return [
      * Remember to call artisan gettext:update after change this.
      */
     'source-paths' => [
-        'Http',
-        '../resources/views',
-        'Console',
+        'views',
+        'controllers',
+        'storage/framework/messages'
     ],
 
     /**
