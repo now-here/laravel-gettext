@@ -83,7 +83,6 @@ if (!function_exists('_n')) {
      */
     function _n($singular, $plural, $count, $args = null)
     {
-
         $translator = app(LaravelGettext::class);
         $message    = $translator->translatePlural($singular, $plural, $count);
 

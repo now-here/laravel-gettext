@@ -103,4 +103,18 @@ class TranslationTest extends BaseTestCase
                                        5);
         $this->assertEquals('Il y a 5 pommes', $string);
     }
+
+    public function testTranslatePluralSingle()
+    {
+        $string = $this->translator->translatePlural('Il y a une pomme', 'Il y a %s pommes', 1);
+
+        $this->assertEquals('Il y a une pomme', $string);
+    }
+
+    public function testTranslatePluralMultiple()
+    {
+        $string = $this->translator->translatePlural('Il y a une pomme', 'Il y a %count% pommes', 5);
+
+        $this->assertEquals('Il y a 5 pommes', $string);
+    }
 }
