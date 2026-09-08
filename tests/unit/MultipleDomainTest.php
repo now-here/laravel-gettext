@@ -17,13 +17,6 @@ use Xinax\LaravelGettext\Translators\Symfony;
 class MultipleDomainTest extends BaseTestCase
 {
     /**
-     * Base app path
-     *
-     * @var string
-     */
-    protected $appPath = __DIR__.'/../../vendor/laravel/laravel/bootstrap/app.php';
-
-    /**
      * FileSystem helper
      * @var FileSystem
      */
@@ -47,16 +40,11 @@ class MultipleDomainTest extends BaseTestCase
      */
     protected $storagePath;
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->clearFiles();
-    }
-
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
+
+        $this->clearFiles();
 
         // $testConfig array
         $testConfig = include __DIR__ . '/../config/config.php';
@@ -182,9 +170,10 @@ class MultipleDomainTest extends BaseTestCase
     /**
      * Mocker tear-down
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         m::close();
+        parent::tearDown();
     }
 
     /**

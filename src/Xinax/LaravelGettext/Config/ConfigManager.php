@@ -5,7 +5,8 @@ namespace Xinax\LaravelGettext\Config;
 use \Xinax\LaravelGettext\Config\Models\Config as ConfigModel;
 use \Xinax\LaravelGettext\Exceptions\RequiredConfigurationFileException;
 use \Xinax\LaravelGettext\Exceptions\RequiredConfigurationKeyException;
-use \Illuminate\Support\Facades\Config;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 
 class ConfigManager
 {
@@ -30,7 +31,7 @@ class ConfigManager
         if ($config) {
             $this->config = $this->generateFromArray($config);
         } else {
-            // In Laravel 5.3 we need empty config model
+            // Empty config model when no configuration is available
             $this->config = new ConfigModel;
         }
     }
@@ -94,7 +95,7 @@ class ConfigManager
         $container->setLocale($config['locale'])
             ->setSessionIdentifier($id)
             ->setEncoding($config['encoding'])
-            ->setCategories(array_get('categories', $config, ['LC_ALL']))
+            ->setCategories(Arr::get($config, 'categories', ['LC_ALL']))
             ->setFallbackLocale($config['fallback-locale'])
             ->setSupportedLocales($config['supported-locales'])
             ->setDomain($config['domain'])

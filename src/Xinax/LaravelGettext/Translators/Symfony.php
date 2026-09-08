@@ -2,7 +2,6 @@
 
 use Symfony\Component\Translation\Loader\PoFileLoader;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
-use Cache;
 
 use Xinax\LaravelGettext\Config\Models\Config;
 use Xinax\LaravelGettext\Adapters\AdapterInterface;
@@ -114,22 +113,21 @@ class Symfony extends BaseTranslator implements TranslatorInterface
     /**
      * Translates a plural string
      *
-     * @param $singular
-     * @param $plural
-     * @param $amount
+     * @param string $singular
+     * @param string $plural
+     * @param int $amount
+     * @return string
      */
     public function translatePlural($singular, $plural, $amount)
     {
-        return $this->symfonyTranslator->transChoice(
-            // Symfony translator looks for 'singular|plural' message id in catalog,
-            // and obviously doesn't exists, so always the fallback string will be returned.
-            // $singular . '|' . $plural, //<-- this just doesn't works, idk wtf is wrong.
-            $amount >1 ? $plural : $singular,
-            $amount,
+        // Symfony translator looks for 'singular|plural' message id in catalog,
+        // and it doesn't exist in gettext .po files, so the proper form is
+        // selected here and translated as a plain message.
+        return $this->symfonyTranslator->trans(
+            $amount > 1 ? $plural : $singular,
             ['%count%' => $amount],
             $this->getDomain(),
             $this->getLocale()
         );
     }
-
 }

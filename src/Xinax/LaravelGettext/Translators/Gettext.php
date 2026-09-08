@@ -9,8 +9,6 @@ use Xinax\LaravelGettext\Exceptions\LocaleNotSupportedException;
 use Xinax\LaravelGettext\Exceptions\MissingPhpGettextModuleException;
 use Xinax\LaravelGettext\Exceptions\UndefinedDomainException;
 
-use Illuminate\Support\Facades\Session;
-
 /**
  * Class implemented by the php-gettext module translator
  * @package Xinax\LaravelGettext\Translators
@@ -89,7 +87,7 @@ class Gettext extends BaseTranslator implements TranslatorInterface
         $this->categories = $this->configuration->getCategories();
 
         // Sets defaults for boot
-        $locale = $this->session->get($this->configuration->getLocale());
+        $locale = $this->sessionGet('locale', $this->configuration->getLocale());
 
         $this->setLocale($locale);
     }
@@ -115,6 +113,7 @@ class Gettext extends BaseTranslator implements TranslatorInterface
                 setlocale(constant($category), $gettextLocale);
             }
 
+            $this->locale = $locale;
             $this->sessionSet('locale', $locale);
 
             // Laravel built-in locale

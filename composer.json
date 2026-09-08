@@ -17,25 +17,42 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/xinax/laravel-gettext/issues"
+        "issues": "https://github.com/now-here/laravel-gettext/issues"
     },
     "require": {
-        "php": ">=5.6.0",
-        "laravel/framework": "5.*"
+        "php": "^8.3",
+        "laravel/framework": "^13.0",
+        "symfony/translation": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "~4.0",
-        "squizlabs/php_codesniffer" : "1.5.*",
-        "laravel/laravel": "5.*"
+        "mockery/mockery": "^1.6",
+        "phpunit/phpunit": "^12.5",
+        "orchestra/testbench": "^11.0"
+    },
+    "suggest": {
+        "ext-gettext": "Required to use the native php-gettext handler ('handler' => 'gettext')."
     },
     "autoload": {
-        "psr-0": {
-            "Xinax\\LaravelGettext\\": "src/"
+        "psr-4": {
+            "Xinax\\LaravelGettext\\": "src/Xinax/LaravelGettext/"
         },
         "files": [
             "src/Xinax/LaravelGettext/Support/helpers.php"
         ]
     },
-    "minimum-stability": "stable"
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Xinax\\LaravelGettext\\LaravelGettextServiceProvider"
+            ],
+            "aliases": {
+                "LaravelGettext": "Xinax\\LaravelGettext\\Facades\\LaravelGettext"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
