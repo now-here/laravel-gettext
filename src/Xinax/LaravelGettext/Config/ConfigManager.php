@@ -5,7 +5,8 @@ namespace Xinax\LaravelGettext\Config;
 use \Xinax\LaravelGettext\Config\Models\Config as ConfigModel;
 use \Xinax\LaravelGettext\Exceptions\RequiredConfigurationFileException;
 use \Xinax\LaravelGettext\Exceptions\RequiredConfigurationKeyException;
-use \Illuminate\Support\Facades\Config;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Xinax\LaravelGettext\Storages\SessionStorage;
 
 class ConfigManager
@@ -97,7 +98,7 @@ class ConfigManager
         $container->setLocale($config['locale'])
             ->setSessionIdentifier($id)
             ->setEncoding($config['encoding'])
-            ->setCategories(array_get('categories', $config, ['LC_ALL']))
+            ->setCategories(Arr::get($config, 'categories', ['LC_ALL']))
             ->setFallbackLocale($config['fallback-locale'])
             ->setSupportedLocales($config['supported-locales'])
             ->setDomain($config['domain'])

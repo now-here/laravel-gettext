@@ -1,5 +1,6 @@
 <?php namespace Xinax\LaravelGettext;
 
+use Illuminate\Support\Str;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Xinax\LaravelGettext\Config\Models\Config;
@@ -266,7 +267,7 @@ class FileSystem
                 $data[2] = 'LC_MESSAGES';
             }
 
-            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+            $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
 
             if (!file_exists($gettextPath)) {
                 $this->createDirectory($gettextPath);
@@ -285,7 +286,7 @@ class FileSystem
 
                 if (str_contains($domain, '_common')) {
                     $data[1] = 'common';
-                } elseif (str_contains($domain, '_') and str_contains($domain, $this->configuration->getSupportedSystems())) {
+                } elseif (str_contains($domain, '_') and Str::contains($domain, $this->configuration->getSupportedSystems())) {
                     $data[1] = head(explode('_', $domain));
                 } else {
                     $data[1] = 'LC_MESSAGES';
