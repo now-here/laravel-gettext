@@ -2,26 +2,13 @@
 
 *Laravel Gettext* is a package compatible with the great Laravel PHP Framework. It provides a simple way to add localization support to Laravel applications. It is designed to work with *GNU gettext* and *Poedit*. Former versions of this package (before 4.x) works with the native php-gettext module. Current versions uses the Symfony translation package by default instead of native php extension.
 
-[![Stable build Status](https://travis-ci.org/xinax/laravel-gettext.png?branch=4.0.4)](https://travis-ci.org/xinax/laravel-gettext) <a href="https://github.com/xinax/laravel-gettext/tree/4.0.4">Latest Laravel 5.3.x stable release (4.0.4)</a>
-
-> Note: This documentation applies to laravel 5.3.x and 4.x branch. For older versions of laravel check the following links:
-
-### Older versions
-
-[![Stable build Status](https://travis-ci.org/xinax/laravel-gettext.png?branch=3.1.0)](https://travis-ci.org/xinax/laravel-gettext) <a href="https://github.com/xinax/laravel-gettext/tree/3.1.0">Latest Laravel 5.2.x stable release (3.1.0)</a>
-
-[![Stable build Status](https://travis-ci.org/xinax/laravel-gettext.png?branch=3.0.3)](https://travis-ci.org/xinax/laravel-gettext) <a href="https://github.com/xinax/laravel-gettext/tree/3.0.3">Latest Laravel 5.1.x stable release (3.0.3)</a>
-
-[![Stable build Status](https://travis-ci.org/xinax/laravel-gettext.png?branch=2.0.3)](https://travis-ci.org/xinax/laravel-gettext) <a href="https://github.com/xinax/laravel-gettext/tree/2.0.3">Latest Laravel 5.0 stable release (2.0.3)</a>
-
-[![Stable build Status](https://travis-ci.org/xinax/laravel-gettext.png?branch=1.0.3)](https://travis-ci.org/xinax/laravel-gettext) <a href="https://github.com/xinax/laravel-gettext/tree/1.0.3">Latest Laravel 4.x stable release (1.0.3)</a>
-
-[![Dev build Status](https://travis-ci.org/xinax/laravel-gettext.png?branch=master)](https://travis-ci.org/xinax/laravel-gettext) <a href="https://github.com/xinax/laravel-gettext/tree/master">Development master</a> Unstable, only for development (dev-master)
+> Note: This documentation applies to the Laravel 13 compatible version of the package. For older Laravel versions (4.x - 5.x) see the [upstream xinax/laravel-gettext](https://github.com/xinax/laravel-gettext) releases.
 
 ### 1. Requirements
 
 - Composer - http://www.getcomposer.org
-- Laravel 5.3.* - http://www.laravel.com
+- PHP 8.3+
+- Laravel 13.x - http://www.laravel.com
 - Poedit - https://poedit.net/
 
 Optional requirements if you want to use the native php-gettext extension:
@@ -33,40 +20,30 @@ Optional requirements if you want to use the native php-gettext extension:
 
 ### 2. Install
 
-Add the composer repository to your *composer.json* file:
+Require the package with composer:
 
-```json
-    "xinax/laravel-gettext": "4.x"
+```bash
+    composer require now-here/laravel-gettext
 ```
 
-And run composer update. Once it's installed, you can register the service provider in config/app.php in the providers array:
-
-```php
-    'providers' = [
-        // ...
-        Xinax\LaravelGettext\LaravelGettextServiceProvider::class,
-        // ...
-    ]
-```
+The service provider and the `LaravelGettext` facade alias are registered automatically through Laravel package discovery.
 
 Now you need to publish the configuration file in order to set your own application values:
 
 ```bash
-    php artisan vendor:publish
+    php artisan vendor:publish --provider="Xinax\LaravelGettext\LaravelGettextServiceProvider" --tag=config
 ```
 
 This command creates the package configuration file in: ```config/laravel-gettext.php```.
 
-You also need to register the LaravelGettext middleware in the ```app/Http/Kernel.php``` file:
+You also need to register the LaravelGettext middleware in ```bootstrap/app.php```:
 
 ```php
-    protected $middlewareGroups = [
-        'web' => [
-            // ...
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
             \Xinax\LaravelGettext\Middleware\GettextMiddleware::class,
-        ],
-        // ...
-    ]
+        ]);
+    })
 ```
 
 > Be sure to add the line after ```Illuminate\Session\Middleware\StartSession```, otherwise the locale won't be saved into the session.
@@ -105,13 +82,13 @@ At this time your application has full gettext support. Now you need to set some
 
 Ok, now it's configured. It's time to generate the directory structure and translation files for the first time.
 
-> Make sure you have write permissions on ```resources/``` before you run this command
+> Make sure you have write permissions on ```lang/``` before you run this command
 
 ```bash
     php artisan gettext:create
 ```
 
-With this command the needed directories and files are created on **resources/lang/i18n**
+With this command the needed directories and files are created on **lang/i18n**
 
 ### 4. Workflow
 
@@ -165,7 +142,7 @@ See <a href="http://docs.translatehouse.org/projects/localization-guide/en/lates
 
 ##### C. Translate with Poedit
 
-Open the PO file for the language that you want to translate with Poedit. The PO files are located by default in **resources/lang/i18n/[locale]/LC_MESSAGES/[domain].po**. If you have multiple gettext domains, one file is generated by each domain.
+Open the PO file for the language that you want to translate with Poedit. The PO files are located by default in **lang/i18n/[locale]/LC_MESSAGES/[domain].po**. If you have multiple gettext domains, one file is generated by each domain.
 
 <img src="https://raw.github.com/xinax/laravel-gettext/master/doc/poedit.png" />
 

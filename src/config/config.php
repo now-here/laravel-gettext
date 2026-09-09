@@ -52,7 +52,7 @@ return [
     /**
      * Base translation directory path (don't use trailing slash)
      */
-    'translations-path' => '../resources/lang',
+    'translations-path' => '../lang',
 
     /**
      * Relative path to the app folder: is used on .po header files

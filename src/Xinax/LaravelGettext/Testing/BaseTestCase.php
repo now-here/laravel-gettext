@@ -1,39 +1,27 @@
-<?php namespace Xinax\LaravelGettext\Testing;
+<?php
 
-use \Illuminate\Foundation\Testing\TestCase;
+namespace Xinax\LaravelGettext\Testing;
+
+use Orchestra\Testbench\TestCase;
+use Xinax\LaravelGettext\LaravelGettextServiceProvider;
 
 /**
- * Created by PhpStorm.
- * User: shaggyz
- * Date: 17/10/16
- * Time: 14:41
+ * Base test case for package tests.
+ * Boots a Laravel application through Orchestra Testbench
+ * with the package service provider registered.
  */
 class BaseTestCase extends TestCase
 {
     /**
-     * Base app path
+     * Get package providers.
      *
-     * @var string
+     * @param  \Illuminate\Foundation\Application  $app
+     * @return array<int, class-string>
      */
-    protected $appPath;
-
-    /**
-     * Instantiates the laravel environment.
-     *
-     * @return mixed
-     */
-    public function createApplication()
+    protected function getPackageProviders($app)
     {
-        // relative path in package folder
-        if (!$this->appPath) {
-            return null;
-        }
-
-        $app = require $this->appPath;
-        $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-
-        $app->register('Xinax\LaravelGettext\LaravelGettextServiceProvider');
-
-        return $app;
+        return [
+            LaravelGettextServiceProvider::class,
+        ];
     }
 }

@@ -11,18 +11,11 @@ use Xinax\LaravelGettext\Translators\Symfony;
 class LaravelGettextTest extends BaseTestCase
 {
     /**
-     * Base app path
-     *
-     * @var string
-     */
-    protected $appPath = __DIR__.'/../../vendor/laravel/laravel/bootstrap/app.php';
-
-    /**
      * @var Symfony
      */
     protected $translator;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $testConfig = include __DIR__ . '/../config/config.php';
@@ -90,8 +83,9 @@ class LaravelGettextTest extends BaseTestCase
         $this->assertInstanceOf('Xinax\LaravelGettext\Translators\Symfony', $response);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         m::close();
+        parent::tearDown();
     }
 }

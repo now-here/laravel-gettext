@@ -1,5 +1,7 @@
 <?php namespace Xinax\LaravelGettext;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Xinax\LaravelGettext\Config\Models\Config;
@@ -242,7 +244,7 @@ class FileSystem
 
         if ($this->configuration->getCustomLocale()) {
             $data[1] = 'C';
-            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+            $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
             if (!file_exists($gettextPath)) {
                 $this->createDirectory($gettextPath);
             }
@@ -250,7 +252,7 @@ class FileSystem
             $data[2] = 'LC_MESSAGES';
         }
 
-        $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+        $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
 
         if (!file_exists($gettextPath)) {
             $this->createDirectory($gettextPath);
@@ -258,7 +260,7 @@ class FileSystem
 
         foreach (['ldf','em','nmaps','adama','common','LC_MESSAGES'] as $system){
             $data[1] = $system;
-            $gettextPath = implode($data, DIRECTORY_SEPARATOR);
+            $gettextPath = implode(DIRECTORY_SEPARATOR, $data);
             if (!file_exists($gettextPath)) {
                 $this->createDirectory($gettextPath);
             }
@@ -266,27 +268,27 @@ class FileSystem
 
         // File generation for each domain
         foreach ($this->configuration->getAllDomains() as $domain) {
-            if(!str_contains($domain,['ldf_','em_','nmaps_','adama_'])){
+            if(!Str::contains($domain, ['ldf_','em_','nmaps_','adama_'])){
 
-                if(str_contains($domain,['api','emails_common','misc','partials_rv'])){
+                if(Str::contains($domain, ['api','emails_common','misc','partials_rv'])){
                     $data[1]='common';
                     $data[2] = $domain . ".po";
-                    $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+                    $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
                     $this->createPOFile($localePOPath, $locale, $domain);
                     continue;
                 }
 
                 $data[1]='LC_MESSAGES';
                 $data[2] = $domain . ".po";
-                $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+                $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
                 $this->createPOFile($localePOPath, $locale, $domain);
                 continue;
             }
 
-            $system = head(explode('_',$domain));
+            $system = Arr::first(explode('_', $domain));
             $data[1] = $system;
             $data[2] = $domain . ".po";
-            $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+            $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
 
             if (!$this->createPOFile($localePOPath, $locale, $domain)) {
                 throw new FileCreationException(
@@ -325,7 +327,7 @@ class FileSystem
             if($domain == 'messages' or $domain == $system)return true;
             $data[1] = $system;
             $data[2]=$domain.".po";
-            $localePOPath = implode($data, DIRECTORY_SEPARATOR);
+            $localePOPath = implode(DIRECTORY_SEPARATOR, $data);
 
             if(!file_exists($localePOPath)) continue;
 
